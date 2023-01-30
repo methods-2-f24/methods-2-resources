@@ -1,5 +1,4 @@
 # Methods 2: The General Linear Model
-Link to your GitHubs & a place to ask questions. https://cryptpad.fr/pad/#/2/pad/edit/9XzXCCn3hymNiRxmPb2WlH4m/
 
 ## Overview
 
@@ -19,29 +18,36 @@ Should you want to deepen your knowledge of the mathematical content, I can reco
 
 | Course week | Week of year | Topics and readings                                                                  |
 |:-----------:|:------------:|:-------------------------------------------------------------------------------------|
-| 1           | 5            | Regression and the GLM: overview, data and measurement, (GHV<sup>1</sup> 1,2)        |
-| 2           | 6            | Basic methods, statistical inference (GHV 3,4)                                       |
-| 3           | 7            | Statistical inference (continued), simulation (GHV 4,5)                              |
-| 4           | 8            | Math basics: functions, equations, polynomials, logarithms (Gill<sup>2</sup> 1)      |
-| 5           | 9            | Linear algebra basics: vectors, matrices, norms, transposition (Gill 3)              |
-| 6           | 10           | More linear algebra: geometry, determinants, rank, inversion, eigenvectors (Gill 4)  |
+| 1           | 6            | Regression and the GLM: overview, data and measurement, (GHV<sup>1</sup> 1,2)        |
+| 2           | 7            | Basic methods, statistical inference (GHV 3,4)                                       |
+| 3           | 8            | Statistical inference (continued), simulation (GHV 4,5)                              |
+| 4           | 9            | Math basics: functions, equations, polynomials, logarithms (Gill<sup>2</sup> 1)      |
+| 5           | 10           | Linear algebra basics: vectors, matrices, norms, transposition (Gill 3)              |
+| 6           | 11           | More linear algebra: geometry, determinants, rank, inversion, eigenvectors (Gill 4)  |
 | 7           | 12           | Scalar calculus: derivatives, integrals, fundamental theorem (Gill 5)                |
 | 8           | 13           | More calculus: root finding, extrema, Lagrange multipliers, vector calculus (Gill 6) |
-| 9           | 14           | Conceptual foundations and history of the GLM, model fitting (GHV 6,7,8)             |
+| 9           | 15           | Conceptual foundations and history of the GLM, model fitting (GHV 6,7,8)             |
 | 10          | 16           | Fitting GLMs: prediction, Bayesian inference (GHV 9)                                 |
 | 11          | 17           | Multiple predictors, interactions (GHV 10)                                           |
 | 12          | 18           | Model comparison, assumptions and diagnostics (GHV 11)                               |
-| 13          | 19           | Transformations, predictive simulations (GHV 12)                                     |
-
+| 13          | 19           | Transformations, predictive simulations (GHV 12) [no class, just lecture]            |
+| 13a         | 21           | Final class to wrap up portfolio writing                                             |
 
 <sup>1</sup> Gelman, A., Hill, J., & Vehtari, A. (2020). *Regression and Other Stories* (Analytical Methods for Social Research). Cambridge: Cambridge University Press. [doi:10.1017/9781139161879](https://doi.org/10.1017/9781139161879)
 
 <sup>2</sup> Gill, J. (2006). *Essential Mathematics for Political and Social Research* (Analytical Methods for Social Research). Cambridge: Cambridge University Press. [doi:10.1017/CBO9780511606656](https://doi.org/10.1017/CBO9780511606656)
 
-
 ## Videos
 
 This whole course (with a few exceptions) [is on YouTube](https://www.youtube.com/playlist?list=PLvJwKACYy5_MTdnrzxx_1sN389dS9OB3S)! These videos are from last year's course which took place under lockdown conditions. This year, we're going to cover topics in a slightly different order, starting with an introduction to regression modelling before we go into linear algebra and calculus. This means the videos will be less relevant during the first three weeks of the course, but from then on, you can watch them in the order of the playlist.
+
+## Flipped classroom
+
+We will be using a so-called 'flipped classroom' in this course. This means that you are generally expected to have read the literature and wathched the vidoes before coming to the lecture. The purpose of the lecture then is for you to ask questions (the more, the better!) so that we can go over the material again together, deepening and broadening our understanding of it.
+
+## Slack workspace
+
+In order for us to stay in contact, ask questions, and have discussions, there is a Slack workspace dedicated to this course. You will receive an invite link via Brightspace.
 
 ## Exam
 
@@ -50,9 +56,8 @@ This whole course (with a few exceptions) [is on YouTube](https://www.youtube.co
 consisting of a mix of text and code.
 
 - Due
-  1. End of week 10 (Sunday 13 March, 23:59)
-  2. End of week 14 (Sunday 10 April, 23:59)
-  3. End of week 18 (Sunday 8 May, 23:59)
+  1. End of week 9 (Sunday 5 March, 23:59)
+  2. End of week 13 (Sunday 2 April, 23:59)
+  3. End of week 17 (Sunday 30 April, 23:59)
 
 You will receive a (short) feedback message from us on your portfolio assignments that you can use for improvements before finalizing your hand-ins.
-
