@@ -1,0 +1,187 @@
+---
+title: "Week 1 solution"
+author: "Kathrine Schultz-Nielsen"
+date: "8/2/2023"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+pacman::p_load(rstanarm,tidyverse, ggpubr)
+```
+
+# 1.2
+Predicting percentage vote to incumbent party. A linear relationship is given.
+Simulate data with different residual standard deviataions.
+
+```{r}
+# y = 46.3 + 3x + error
+
+# rnorm generates a random data set with the given mean and standard deviation
+x1=rnorm(1e3,2,2/4) # sampling 1000 datapoint with mu = 2 and sd = 0.5
+
+#Simulate such data with residual sd = 3.9
+error=rnorm(1e3,0,3.9) # Ensuring that the residuals (i.e. errors have sd = 3.9)
+y1=30+(10*x1)+error 
+df_12 <- data_frame(x1 = x1, y1 = y1)
+model <- stan_glm(y1~x1, data = df_12, refresh = 0)
+#summary(model)
+```
+
+```{r}
+model1 <- lm(y1~x1, data = df_12)
+plot(x = x1, y = y1,)
+abline(a = model1$coefficients[1], b = model1$coefficients[2])
+```
+
+
+
+```{r}
+plot(x = x1, y = y1,)
+abline(a = model$coefficients[1], b = model$coefficients[2])
+```
+
+```{r}
+x2=rnorm(1e3,2, 2/4)
+#Simulate such data with residual std = 10
+error2=rnorm(1e3,0,10)
+y2=30+(10*x2)+error2
+df_12 <- df_12 %>% 
+  mutate(x2 = x2) %>% 
+  mutate(y2 = y2)
+model2 <- stan_glm(y2~x2, data = df_12, refresh = 0)
+#summary(model2)
+```
+
+
+```{r}
+plot(x = x2, y = y2,)
+abline(a = model2$coefficients[1], b = model2$coefficients[2])
+```
+#### Better way using a function. 
+Create function
+```{r}
+simulate_data <- function(b,a,sigma,n, max_x){
+  b <- c(b, a) #Beta matrix of model parameters
+  n <- n #N observations
+  x <- runif(n, min = 0, max = max_x) #x
+  err <- rnorm(n, mean = 0, sd = sigma) #residual errors
+  y <- b[1] + b[2]*x + err
+  
+  return (tibble(x, y))
+}
+```
+
+simulate data with sigma = 3.9. 
+```{r}
+intercept = 30
+slope = 10
+sim1 = simulate_data(b = intercept, a = slope, sigma =  3.9, n = 2000, max_x = 4)
+stan_glm(y ~ x, data = sim1, refresh = 0)
+ggplot(sim1, aes(x = x, y = y)) + geom_point() + geom_abline(intercept = intercept, slope = slope, color = "red", size = 1.5)
+```
+
+simulate data with sigma = 10.
+```{r}
+sim2 = simulate_data(b = intercept, a = slope, sigma =  10, n = 2000, max_x = 18)
+stan_glm(y ~ x, data = sim2)
+ggplot(sim1, aes(x = x, y = y)) + geom_point() + geom_abline(intercept = intercept, slope = slope, color = "red", size = 1.5)
+```
+## 1.5 Goals of regression
+a) Forecasting/classification
+- Forecasting stock prices
+- Classifying gene expressions
+- In cogsci whether some stimuli can predict a behavioral or neural outcome
+
+b) 
+- Could be association between global temperature and green house gas emissions
+
+c)
+- Prediction of future height in Kids (could be a linear extrapolation), using measures and regression fits to predict future outcomes
+
+d) 
+- Does a drug or treatment have an effect compared to a control group
+
+
+# Chapter 2 
+
+```{r}
+remotes::install_github("avehtari/ROS-Examples",subdir = "rpackage")
+```
+
+```{r}
+# Loading the data
+library(rosdata)
+```
+
+
+### Exercise 2.3
+```{r}
+install.packages("stringr")
+pacman::p_load(stringr)
+```
+```{r}
+allnames
+```
+
+```{r}
+## Creating the data frame
+names_f <- filter(allnames, sex == "F") # Filtering all females
+names_f <- mutate(names_f, last_letter = str_sub(names_f$name, -1))  # Getting the last letter in their name
+names_f <- mutate(names_f, last_letter = as.factor(last_letter)) # Converts to factors
+years <- names(allnames)[4:134] # Extracting the year columns
+ # group by the last letter
+names_f_group <- group_by(names_f, last_letter) # Ensures that future operations are done per group (last letter)
+
+sum_names_f <- summarise_at(names_f_group, years, sum, na.rm = TRUE) # For each group we summarize the number of last letters per year
+
+#See this for overview
+#print(names_f)
+#print(names_f_group)
+#print(sum_names_f)
+
+```
+
+```{r}
+#Turning frequencies into percentages
+func_1 <- function(x, na.rm = TRUE) (x/sum(x))*100
+percentage_names_f<- mutate_at(sum_names_f, years, func_1)
+#percentage_names_f
+```
+
+```{r}
+#Pivot longer so we get 1 row for each year with each letter. 
+final_df <- pivot_longer(percentage_names_f, cols = years, names_to = "Year", values_to = "number") 
+final_df <- mutate(final_df, Year = as.factor(Year))
+final_df <- mutate(final_df, Year = as.numeric(Year))
+#final_df
+```
+
+```{r}
+#Plotting time
+final_df %>% 
+  ggplot(aes(x = Year, y = number, col = last_letter, group = last_letter)) + geom_line() + 
+  labs(y = "Percentage of people born with letter", title = "Overview of % girls born with a specific last letter each year", x = "Years after 1880") +  scale_x_continuous() + theme(axis.text.x = element_text(angle = -45)) 
+```
+
+```{r}
+#allnames
+```
+
+### 2.7
+
+a) An example of measurements that are valid but not reliable:
+
+
+b) An example of measurements that are reliable but are invalid:
+A scale that measure 5 kgs off - it is reliable in the sense that it will measure the same every time, however the measure is invalid as it will be 5 kgs offl
+
+
+
+
+
