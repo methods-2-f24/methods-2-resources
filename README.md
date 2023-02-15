@@ -19,7 +19,7 @@ Should you want to deepen your knowledge of the mathematical content, I can reco
 | Course week | Week of year | Topics and readings                                                                  |
 |:-----------:|:------------:|:-------------------------------------------------------------------------------------|
 | 1           | 6            | Regression and the GLM: overview, data and measurement, (GHV<sup>1</sup> 1,2)        |
-| 2           | 7            | Basic methods, statistical inference (GHV 3,4)                                       |
+| 2           | 7            | Basic methods, statistical inference (GHV 3)                                         |
 | 3           | 8            | Statistical inference (continued), simulation (GHV 4,5)                              |
 | 4           | 9            | Math basics: functions, equations, polynomials, logarithms (Gill<sup>2</sup> 1)      |
 | 5           | 10           | Linear algebra basics: vectors, matrices, norms, transposition (Gill 3)              |
