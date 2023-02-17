@@ -1,5 +1,5 @@
 ---
-title: "Week 1 solution"
+title: "Week 2 solution"
 author: "Kathrine Schultz-Nielsen"
 date: "8/2/2023"
 output:
