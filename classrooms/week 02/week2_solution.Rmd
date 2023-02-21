@@ -1,0 +1,205 @@
+---
+title: "Week 2 solution"
+author: "Kathrine Schultz-Nielsen"
+date: "8/2/2023"
+output:
+---
+
+```{r}
+pacman::p_load(rstanarm,tidyverse, ggpubr, rootSolve)
+
+```
+
+# Warm-up: practicing vector and matrix notation
+Consider these the following predictions
+$$
+\begin{aligned}
+& \hat{y}_1=47=50+3.0 *(-1) \\
+& \hat{y}_2=-50=50*(-1)+3.0 * 0 \\
+& \hat{y}_3=109=50*2+3.0 * 3
+\end{aligned}
+$$
+```{r}
+50+3.0 *(-1)
+(-1)*50+3.0 * 0
+(2)*50+3.0 * 3
+```
+Try to write the prediction in vector notation. If you further want to challenge yourself try Matrix notation as well. (if you are stuck have a look at pages 36-37 in ROS). It might be helpful to do this exercise by hand.
+
+## Solution
+Vector notation
+$$
+\hat{y}=\left(\begin{array}{c}
+47 \\
+-50 \\
+109
+\end{array}\right)=\left(\begin{array}{c}
+50+3.0 *(-1) \\
+50*(-1)+3.0 * 0 \\
+50*2+3.0 * 3
+\end{array}\right)
+$$
+Matrix notation
+$$
+\hat{y}=\left(\begin{array}{c}
+43.3 \\
+46.3 \\
+55.3
+\end{array}\right)=\left(\begin{array}{cc}
+1 & -1 \\
+-1 & 0 \\
+2 & 3
+\end{array}\right)\left(\begin{array}{c}
+50 \\
+3.0
+\end{array}\right)
+$$
+
+# 3.1
+```{r}
+# Computing the proportion of respondents in the sample who support higher taxes
+
+# 'Manual' way
+support = round((200*0.5 + 250*0.6 + 300*0.4 + 250*0.3)/(200 + 250 + 300 + 250), 4)
+sprintf('Proportion supporting higher taxes: %s',support)
+
+# Using R-dataframe & tidyverse
+poll_df <- data.frame(Age = c("19:29","30:44","45:64","65+"), People = c(200,250,300,250), 
+           percentage = c(0.5,0.6,0.4,0.3))
+poll_df = summarise(poll_df, sum(People*percentage)/sum(People))
+
+print(poll_df)
+```
+
+# 3.3
+```{r}
+# Create a sequence of numbers between -10 and 10 incrementing by 0.1.
+x <- seq(-10, 10, by = .1)
+
+# Choose the mean as 2.5 and standard deviation as 0.5.
+y <- dnorm(x, mean = 0, sd = 1)
+plot(x, y, type = "l", main = 'Varying the standard deviation', ylab = 'density')
+
+
+for (sd_val in 2:4){
+    x <- seq(-10, 10, by = .1)
+    lines(x, dnorm(x, 0, sd_val))
+}
+
+y2 <- dnorm(x, mean = -2, sd = 1)
+plot(x, y2, type = "l", main = 'Varying the mean', ylab = 'density')
+for (mean_val in -1:2){
+    x <- seq(-10, 10, by = .1)
+    lines(x, dnorm(x, mean_val, 1))
+  }
+```
+
+
+```{r}
+# Using ggplot and simulation
+#Simulate numbers for a density distribution
+density_df <- data_frame(density_values = c(), mean_dens = c(), sd_dens = c())
+
+# Simulating standard deviations 2,3 and 4
+for (sd_val in 2:4){
+  # looping over mean values from 10 to 15
+  for (mean_val in 10:15){
+    temp <- rnorm(1000, mean = mean_val,  sd = sd_val)
+    mean = rep(mean_val,1000)
+    sd = rep(sd_val, 1000)
+    
+    density_df <- rbind(density_df, data_frame(density_values = temp , mean_dens =  mean, sd_dens = sd))
+  }
+}
+ggplot(density_df, aes(x = density_values, color = as.factor(mean_dens))) + geom_density(alpha = 0.4) + facet_grid(~as.factor(sd_dens)) + theme_classic()
+```
+
+# 3.4 
+```{r}
+# Poisson distribution 
+barplot(dpois(0:10,3.5),ylab="Probability",xlab="n",ylim=c(0,0.2), names.arg=0:10)
+```
+
+# 3.5
+```{r}
+# Graphing the binomial with n = 20
+barplot(dbinom(0:20,20,0.3),ylab="Probability", ylim=c(0,0.2), xlab = 'k', names.arg=0:20)
+
+# This distribution show the probability of getting exactly k successes in n independent Bernoulli trials
+```
+One important thing that differentiates poisson and binomial distributions:
+The binomial distribution is one, whose possible number of outcomes are two, i.e. success or failure. On the other hand, there is no limit of possible outcomes in Poisson distribution
+Example of Binomial: coin toss
+Example of Poisson: Number of overfloods in a river
+
+# 3.8
+```{r}
+# Using the fomula on page 43 in ROS
+mean1 = 69.1 # Husbands
+mean2 = 63.7 # Wifes
+
+sd1 = 2.9 # Husbands
+sd2 = 2.7 # Wifes
+
+# Weights
+a = 1/2
+b = 1/2
+
+print(a*mean1+b*mean2)
+print(sqrt((a^2*sd1^2) + (b^2*sd2^2) + (2*a*b*0.3*sd1*sd2))) # WHY IS THIS DIFFERENT
+```
+# 4.1
+Very similar to the example provided the bottom part of page 52 and top of page 53
+Give an estimate and standard error of the average effect size.  
+
+500 people got treatment (5$) and 50% of them responded on the survey,
+500 people got no treatment and 40% of them responded on the survey.
+
+What is the effect and SE of the treatment. 
+Find the standard error of the estimate as:
+$$se = \sqrt{(\hat{p}(1-\hat{p})/n} $$
+Then use SE the differences $$ \sqrt{se_1^2 + se_2^2} $$
+
+```{r}
+n = 1000 ; n1 = 500 ; n2 = 500
+p1 = 0.5 ; p2 = 0.4
+#Treatment
+SE_treat = sqrt(p1*(1-p1)/n)
+#Control
+SE_control = sqrt(p2*(1-p2)/n)
+#The differences.
+SE_diff = sqrt(SE_treat^2+SE_control^2)
+c(SE_diff = SE_diff, effect_of_treatment = (p1-p2))
+```
+
+# 4.2
+Using the data on page 53. 
+
+how many people do you need before the se is less than 5 percentage points. 
+Well how many people you for a SE to be less than 5 percentage points depends on
+the sd if you're working with continuous variables or the $\hat{p}$ if you're working with
+proportions. 
+
+```{r}
+for (n in 1:300){
+  # Proportions
+  p_male <- 0.45
+  p_female <- 0.57
+  
+  se_male <- sqrt(p_male*(1-p_male)/n)
+  se_female <- sqrt(p_female*(1-p_female)/n)
+  
+  se_diff <- sqrt(se_male^2+se_female^2)
+  if (se_diff < 0.05){
+    print(paste(n, "people are required to get a se below 5 percentage points if n is the same for both male and female."))
+    break
+  }
+}
+
+```
+
+
+hint create a loop through the number of percentage points
+
+
+
