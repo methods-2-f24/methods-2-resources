@@ -1,0 +1,265 @@
+---
+title: "Week 3 solution"
+author: "Kathrine Schultz-Nielsen"
+date: "22/2/2023"
+output:
+---
+
+```{r}
+# Loading dependencies
+pacman::p_load(tidyverse, ggpubr)
+```
+# Chapter 4
+
+## Warm-up 1: Consider the study of ovulation and political attitudes on pp. 62-63. Why is this study flawed. Discuss with your neighbor :)
+
+- Many different things could have been tested. Thus, it is not surprising that one of them would be significant.
+
+- Type M-error: The effect seem implausibly large. Unrealistic number of people switch their voting preference. This could be explained by some confounder. The book suggests that maybe liberal or consevative women are more likely to participate during different parts of their cycle.
+
+## Warm-up 2: What are the authors 3 suggestions to avoid over-interpretation of noise?
+- Analyzing all of your data
+- Present all comparisons
+- Make your data public
+
+## Optional: If you want more exercises from chapter 4 try 4.1 and 4.2 if you didn't complete them last week. Hint: In 4.2 use the proportions given in the example in section "Standard error for a comparison" on pp. 52-53
+
+# Chapter 5
+Loops are essential to simulating
+
+## Exercise Practising loops
+What is the difference between a for- and a while loop? Explain in your own words?
+When would you use for loops and when would you use while loops?
+
+Create and run both a simple for and a while loop
+```{r}
+# simple for loop
+print('for-loop output')
+for (i in 1:10){
+  print(i+5)
+}
+# simple while loop
+print('while-loop output')
+number = 0
+while (number < 10){
+  print(number)
+  number = number + 1
+}
+```
+
+
+## 5.1
+a)
+```{r}
+# Function to simulate basketball player
+
+basketball <- function(printing = FALSE){
+  misses_in_a_row <- 0 #start with 0 misses
+  hits_in_a_row <- 0 #start with 0 hits 
+  shots <- 0
+  while (misses_in_a_row < 2){ #if we miss two in arow stop
+    hit <- rbinom(1, size = 1, prob = .6) #the bernoulli trial. 
+    if (hit == 1){ #check if hit
+      hits_in_a_row <- hits_in_a_row + 1 #add 1 to counter of number of hits
+      misses_in_a_row <- 0 #reset the misses in a row
+      shots <- shots +1 
+    }
+    else{ #If it were a miss 
+      misses_in_a_row <- misses_in_a_row +1 # add 1 to the counter of misses
+      shots <- shots +1
+    }
+  }
+  # if statement to print results
+  if (printing == TRUE){
+    print(paste("You hit", hits_in_a_row, "out of", shots, "shots"))
+  }
+  return(c(hits_in_a_row, shots))
+}
+
+basket_sim <- basketball(printing = TRUE)
+```
+
+b) 
+```{r}
+# Simulating the basketball player a 1000 times and estimating the mean and the standard deviation of the of the total number of shots
+
+total_shots <- c()
+hits <- c()
+
+for (i in 1:1000){
+  
+  temp <- basketball()
+  hits[i] <- temp[1]
+  total_shots[i] <- temp[2]
+  
+}
+
+paste("The mean of the total number of shots is", mean(total_shots), "and the std of total number of shots is", sd(total_shots))
+#hist(total_shots)
+
+```
+c) 
+```{r}
+# Using the simulations to make a scatterplot of the number of shots the player will take and the proportion of shots that are successes 
+plot(x = total_shots, y = hits/total_shots)
+```
+
+## 5.3
+a) 
+```{r}
+# A line of R-code to compute the probability that each player makes exactly 3 out of 10 shots
+# The basketball scenarios can still be seen as a binomial distribution.
+# Use the probability density function to compute the probability that each player makes 3 out of 10 shots.
+# Remember that dbinom(k, n, p) can be used 
+
+dbinom(3, size = 10, prob = .4)
+```
+b) 
+```{r}
+# Writing an R function to simulate the 10 shots & checking that the simulated probability is close to the true probability.
+
+# We can either utilize the builtin rbinom function
+shots_hit_sim<- rbinom(1e4, size = 10 , prob = .4)
+print('Builtin R:')
+sum(shots_hit_sim == 3)/1e4
+
+# Or write a function ourselves
+basket_sim_function <- function(n){
+  sim_vals <- c()
+  for (i in 1:n){
+    sim_vals[i] <- rbinom(1, size = 10 , prob = .4)
+  }
+  return(sum(sim_vals == 3)/n)
+}
+print('Own loop:')
+basket_sim_function(10000)
+
+# They are comparable to the true probability found in a)
+```
+# 5.4
+Recall the Central limit theorem on the bottom of page 51.
+```{r}
+#The Central Limit Theorem of probability states that the sum of many small, independent random variables will be a random variable that approximates what is called a normal distribution
+
+random_vals <- c()
+for (i in 1:1000){
+  random_vals[i] <- sum(runif(20, min = 0 , max = 1))
+}
+
+hist(random_vals, freq = FALSE)
+x = seq(from = -100, to = 100)
+curve(dnorm(x, mean=mean(random_vals), sd=sd(random_vals)), 
+      col="darkblue", lwd=2, add=TRUE, xlim = c(6,14))
+
+```
+```{r}
+# Alternative solution with ggplot
+df <- data.frame()
+for (i in 1:1000){
+  df[i,1] <- sum(runif(20, min = 0 , max = 1))
+}
+
+ggplot(df, aes(x = V1)) + geom_histogram(aes(y = ..density..)) + stat_function(fun = dnorm, args = list(mean=mean(df$V1),sd=sd(df$V1))) + theme_classic()
+```
+
+# 5.5 
+*Hint 1 
+```{r}
+# Distribution of averages and differences
+# x = randomly sampled height of men, y = randomly sampled height of women
+
+x <- c()
+y <- c()
+xy_diff <- c()
+n_sims <- 1000
+
+for (i in 1:n_sims){
+  x[i] <- mean(rnorm(100 , mean = 69.1, sd = 2.9)) ; y[i] <- mean(rnorm(100, mean = 63.7, sd = 2.7))
+  xy_diff[i] <- x[i] - y[i] 
+}
+mean(xy_diff)
+sd(xy_diff)
+hist(xy_diff)
+
+```
+Computing the exact values based on definitions from page. 43 describing the sum of correlated variables
+$$ \mu_{x-y}=\mu_x - \mu_y$$
+In the fomula on p. 43 insert the definition of the correlation from the covariance
+
+$$\sigma_{x-y} = \sqrt{\sigma_x^2 + \sigma_y^2 - 2 \cdot \frac{cov(x,y)}{\sigma_x\sigma_y}\cdot\sigma_x\sigma_y} = \sqrt{\sigma_x^2 + \sigma_y^2 - 2 \cdot cov(x,y)} $$
+```{r}
+#mean 
+69.1 - 63.7
+#standard error of the mean.
+sqrt((2.9/sqrt(100))^2 +  (2.7/sqrt(100))^2 - 2 * cov(x,y))
+```
+
+# 5.8
+*hint 2
+a) Simulating 1000 independent replications of the experiment
+```{r}
+df_sim <- data.frame(V1 = rlnorm(127, meanlog = 0.10, sdlog = 0.17)) -1 
+for (i in 2:1000){
+  df_sim[,i] <- rlnorm(127, meanlog = 0.10, sdlog = 0.17) - 1
+}
+```
+
+b) Computing the 95% confidence interval and checking how many of the simulations contain the 95% confidence interval
+
+```{r}
+# Function to calculate the confidence interval
+conf_int <- function(x){
+  
+  # compute mean
+  mean_value <- mean(x)
+  
+  # compute size
+  n <- length(x)
+  
+  # find std
+  standard_deviation <- sd(x)
+  
+  standard_error <- standard_deviation / sqrt(n)
+  alpha = 0.05
+  degrees_of_freedom = n - 1
+  t_score = qt(p=alpha/2, df=degrees_of_freedom,lower.tail=F)
+  margin_error <- t_score * standard_error
+
+  lower_bound <- mean_value - margin_error
+  upper_bound <- mean_value + margin_error
+  
+  return(c(lower_bound,upper_bound))
+}
+
+
+# Loop through the 1000 simulations
+lower_ci <- c()
+upper_ci <- c()
+
+for (i in 1:1000){
+  lower_ci[i] <- conf_int(df_sim[,i])[1]
+  upper_ci[i] <- conf_int(df_sim[,i])[2]
+}
+
+paste("Number of simulations that contain the true value in 95% confidence interval=", sum(upper_ci >= 0.10 & lower_ci <= 0.10))
+```
+
+# 5.9
+Looping through the simulations and creating t-tests to see if the treatment effect is significantly different from zero.
+
+```{r}
+temp <- c()
+for (i in 1:ncol(df_sim)){
+  temp[i] <- t.test(df_sim[,i], mu = 0, alternative = "greater")$p.value
+}
+sum(temp >= 0)
+```
+# Hints
+### Hint 1 
+Utilize that 
+$$
+\rho_{X, Y}=\operatorname{corr}(X, Y)=\frac{\operatorname{cov}(X, Y)}{\sigma_X \sigma_Y}
+$$
+### Hint 2
+If you are stuck figuring out how to find confidence intervals in R have a look here:
+https://www.geeksforgeeks.org/how-to-find-confidence-intervals-in-r/
