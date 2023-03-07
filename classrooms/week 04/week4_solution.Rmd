@@ -1,0 +1,56 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# By hand or Latex syntax in a .Rmd file
+Most of these exercises are easiest solved by hand. However, if you want to write math notation in an R-markdown Latex-syntax can be used. Below are some examples of how latex is used to write math equations. Remember to surround your equation by either $ $ or $$ $$. Feel free to ask for me if you want to learn some latex syntax.
+
+$\frac{5}{10}$
+
+$$
+x^{\frac{a}{b}}=\left(x^a\right)^{\frac{1}{b}}=\left(x^{\frac{1}{b}}\right)^a=\sqrt[b]{x^a}
+$$
+# 1.1
+
+# 1.2
+
+# 1.3
+
+# 1.4
+```{r}
+# Simple graphing 
+f <- seq(-10,20, by = .01)
+
+y <- (-160/9) + (5/9)*f
+
+plot(x,y, type = 'l')
+
+```
+
+# 1.6
+
+# 1.15
+
+# 1.21
+Expected effect is here the expected change in homicides per 100,000
+
+# 1.22
+Figure out what the modulo operator does and solve the exercise
+
+The modulo operator is simply implemented in R by %%
+
+```{r}
+# Example
+5 %% 2 
+```
+
+```{r}
+print(113 %% 3)
+print(256 %% 17)
+print(45 %% 5)
+print(88 %% 90)
+```
+
+
+
