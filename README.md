@@ -57,7 +57,7 @@ consisting of a mix of text and code.
 
 - Due
   1. End of week 9 (Sunday 5 March, 23:59)
-  2. End of week 13 (Sunday 2 April, 23:59)
+  2. End of week 14 (Monday 10 April, 23:59)
   3. End of week 17 (Sunday 30 April, 23:59)
 
 You will receive a (short) feedback message from us on your portfolio assignments that you can use for improvements before finalizing your hand-ins.
