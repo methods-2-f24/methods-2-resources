@@ -1,0 +1,195 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+```{r}
+# Loading packages
+library(ggplot2)
+library(rstanarm)
+
+```
+
+# 10.1
+Regression with interactions: Simulate 100 data points from the model, $y = b_0 + b_1 \cdot x + b_2 \cdot z + b_3 \cdot x \cdot z + error$ , with a continuous predictor $x$ and a binary predictor $z$, coefficients $b = (1, 2, -1, -2)$, and errors drawn independently from a normal distribution with mean 0 and standard deviation
+3, as follows. For each data point i, first draw $z_i$, equally likely to take on the values 0 and 1.
+Then draw $x_i$ from a normal distribution with mean $z_i$ and standard deviation 1. Then draw the
+error from its normal distribution and compute $y_i$.
+
+```{r}
+set.seed(0)
+# Simulating the data
+
+# Number of data points
+n <- 100
+b <- c(1,2,-1,-2)
+error_sd <- 3
+
+# Create empty vectors to store simulated data
+x <- c()
+z <- c()
+y <- c()
+
+for (i in 1:n) {
+  
+  # Draw z with equal probability of 0 or 1
+  z[i] <- rbinom(1, 1, .5)
+  x[i] <- rnorm(1, mean = z[i], sd = 1)
+  
+  # Draw error from a normal distribution with mean 0 and standard deviation 3
+  error <- rnorm(1, mean = 0, sd = error_sd)
+  
+  # Compute y using the given model
+  y[i] <- b[1] + b[2] * x[i] + b[3] * z[i] + b[4] * x[i] * z[i] + error
+}
+
+# Display the simulated data
+simulated_data <- data.frame(x = x, z = z, y = y)
+simulated_data
+```
+
+a) 
+```{r}
+# Create the scatter plot using ggplot2
+ggplot(simulated_data, aes(x = x, y = y, shape = factor(z))) +
+  geom_point(size = 3) +
+  scale_shape_manual(values = c(20, 1), labels = c("z = 0", "z = 1")) +
+  labs(title = "Simulated Data", x = "x", y = "y") + 
+  theme_classic()
+```
+b) Fit a regression predicting y from x and z with no interaction. Make a graph with the data
+and two parallel lines showing the fitted model.
+
+```{r}
+# Fit linear regression model
+model <- lm(y ~ x + z, data = simulated_data)
+
+# Extract coefficients
+b <- coef(model)
+
+# Compute predicted y values for z = 0 and z = 1
+y_pred_z0 <- b[1] + b[2] * x + b[3] * 0
+y_pred_z1 <- b[1] + b[2] * x + b[3] * 1
+
+# Create the scatter plot using ggplot2
+ggplot(simulated_data, aes(x = x, y = y, shape = factor(z))) +
+  geom_point(size = 3) +
+  geom_line(aes(x = x, y = y_pred_z0, color = "blue")) +
+  geom_line(aes(x = x, y = y_pred_z1, color = "red")) +
+  scale_shape_manual(values = c(20, 1), labels = c("z = 0", "z = 1")) +
+  scale_color_manual(values = c("blue", "red"), labels = c("z = 0", "z = 1")) +
+  labs(title = "Linear Regression Model", x = "x", y = "y") +
+  theme_classic()
+
+```
+c) Fit a regression predicting $y$ from $x$, $z$ and their interaction. Make a graph with the data and the two lines showing the fitted model.
+
+```{r}
+# Add interaction term to simulated data
+simulated_data$xz <- simulated_data$x * simulated_data$z
+
+# Fit linear regression model with interaction term
+model <- lm(y ~ x + z + xz, data = simulated_data)
+
+# Extract coefficients
+b <- coef(model)
+
+# Compute predicted y values for z = 0 and z = 1
+y_pred_z0 <- b[1] + b[2] * x + b[3] * 0 + b[4] * x * 0
+y_pred_z1 <- b[1] + b[2] * x + b[3] * 1 + b[4] * x * 1
+
+# Create the scatter plot using ggplot2
+ggplot(simulated_data, aes(x = x, y = y, shape = factor(z))) +
+  geom_point(size = 3) +
+  geom_line(aes(x = x, y = y_pred_z0, color = "blue")) +
+  geom_line(aes(x = x, y = y_pred_z1, color = "red")) +
+  scale_shape_manual(values = c(20, 1), labels = c("z = 0", "z = 1")) +
+  scale_color_manual(values = c("blue", "red"), labels = c("z = 0", "z = 1")) +
+  labs(title = "Linear Regression Model with Interaction", x = "x", y = "y") +
+  theme_classic()
+
+```
+# 10.2
+We are given the output of a linear regression with an outcome $y$, a pre-treatment predictor $x$ and a treatment indicator $z$ as well as their interaction.
+
+a) Write the equation of the estimated regression line of y on x for the treatment group, and the
+equation of the estimated regression line of y on x for the control group.
+
+Solution: We know linear regression with two predictors and their interaction has the general form
+
+$$
+y = \beta_0 + \beta_1 \cdot x + \beta_2 \cdot z + \beta_3 \cdot x \cdot z
+$$
+Inserting the median values for the $\hat\beta$-values we get
+
+$$
+y = 1.2 + 1.6 \cdot x + 2.7 \cdot z + 0.7 \cdot x \cdot z
+$$
+The regression line for the treatment group with $z = 1$ will thus be
+
+$$
+y = 1.2 + 1.6 \cdot x
+$$
+The regression line for the control group with $z = 0$ will be 
+
+$$
+y = 3.9 + 2.3 \cdot x
+$$
+b) Just use R to graph this exercise. Graph the two regression lines, assuming the values of x fall in the range (0, 10). On this graph also include a scatterplot of data (using open circles for treated units
+and dots for controls) that are consistent with the fitted model.
+
+Solution:
+```{r}
+intercepts = c(1.2,3.9)
+slopes = c(1.6,2.3)
+sigma = .5
+n <- 100
+x <- runif(n, min = 0, max = 10)
+z <- rbinom(n, 1, .5)
+err <- rnorm(n, mean = 0, sd = sigma)
+y <- 1.2 + 1.6*x + 2.7*z + 0.7*x*z + err
+data = data.frame(x,y,z)
+```
+
+```{r}
+ggplot(data, aes(x = x, y = y, shape = factor(z))) + xlim(0,10) +
+  geom_point(size = 3) +
+  geom_abline(intercept = intercepts[1], slope = slopes[1], colour = 'blue') +
+  geom_abline(intercept = intercepts[2], slope = slopes[2], colour = 'red') +
+  scale_shape_manual(values = c(20, 1), labels = c("z = 0", "z = 1")) +
+  scale_color_manual(values = c("blue", "red"), labels = c("z = 0", "z = 1")) +
+  labs(title = "Linear Regression Model with Interaction", x = "x", y = "y") +
+  theme_classic()
+```
+#10.3 
+Solution: By inspecting the p-values of the output Pr(>|t|) from the linear regression we see that both the intercept and the slope are not statistically significant on a significance level of 5%.
+```{r}
+set.seed(0)
+var1 <- rnorm(1000, 0, 1)
+var2 <- rnorm(1000, 0, 1)
+
+# Regression of var1 on var2
+summary(lm(var1 ~ var2))
+```
+# 10.4
+Continuing the previous exercise, run a simulation repeating this process 100 times. This can be done using a loop. From each simulation, save the z-score (the estimated coefficient of var1 divided by its standard error). If the absolute value of the z-score exceeds 2, the estimate is “statistically significant.
+
+How many of these 100 z-scores exceed 2 in absolute value, thus achieving the conventional
+level of statistical significance?
+
+Solution:
+```{r}
+set.seed(0)
+z_scores <- rep(NA, 100)
+for (k in 1:100) {
+var1 <- rnorm(1000, 0, 1)
+var2 <- rnorm(1000, 0, 1)
+fake <- data.frame(var1, var2)
+fit <- stan_glm(var2 ~ var1, data=fake)
+z_scores[k] <- coef(fit)[2] / se(fit)[2]
+}
+```
+```{r}
+sum(abs(z_scores) > 2)
+```
+8 z_scores were above 2 thus obtaining the conventional level of significance
+
