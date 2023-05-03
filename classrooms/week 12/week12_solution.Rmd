@@ -1,0 +1,271 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(rstanarm)
+library(bayesplot)
+set.seed(0)
+```
+
+
+# 11.5
+Residuals and predictions: The folder Pyth contains outcome $y$ and predictors $x_1$, $x_2$ for 40
+data points, with a further 20 points with the predictors but no observed outcome. Save the file
+to your working directory, then read it into R using read.table()
+
+Solution:
+```{r}
+remotes::install_github("avehtari/ROS-Examples",subdir = "rpackage")
+library(rosdata)
+pyth
+```
+a) Use R to fit a regression model predicting $y$ from $x_1$ and $x_2$ using the first 40 data points. Use R to summarize inferences and checks the fit of your model.
+```{r}
+# subsetting the data
+pyth_train <- pyth[1:40,] 
+pyth_train
+```
+
+```{r}
+# fitting the regression model
+fit1 <- stan_glm(y ~ x1 + x2, data = pyth_train, refresh = 0)
+fit1
+```
+*Posterior predictive checks*
+We can look at the density estimates for $y$ and $y_rep$ (from the posterior predictive distributions). The $y_rep$ lines show the density of the predictions $y$ from posterior samples of each $x$-value.
+```{r}
+# One line for each of the posterior estimates for the parameters
+pp_check(fit1)
+```
+
+b) Display the estimated model graphically as in figure 11.2
+
+
+I accidentally did 11.12 instead of 11.2...
+
+But here is 11.2 ;)
+```{r}
+sims_3 <- as.matrix(fit1)
+n_sims_3 <- nrow(sims_3)
+
+par(mfrow=c(1,2))
+
+plot(pyth_train$x1, pyth_train$y, xlab="x1", ylab="y")
+x2_bar <- mean(pyth_train$x2)
+sims_display <- sample(n_sims_3, 10)
+
+for (i in sims_display){
+curve(cbind(1, x2_bar, x) %*% sims_3[i,1:3], lwd=0.5, col="gray", add=TRUE)
+}
+curve(cbind(1, x2_bar, x) %*% coef(fit1), col="black", add=TRUE)
+plot(pyth_train$x2, pyth_train$y, xlab="x2",
+ylab="y")
+x1_bar <- mean(pyth_train$x1)
+for (i in sims_display){
+curve(cbind(1, x, x1_bar) %*% sims_3[i,1:3], lwd=0.5, col="gray", add=TRUE)
+}
+curve(cbind(1, x, x1_bar) %*% coef(fit1), col="black", add=TRUE)
+```
+
+And here is 11.12 if you did that one instead
+
+We draw 4000 samples for each of the 40 data points and look at the histogram of the smallest values of the 4000 samples. This is compared to the smallest value in our data set (vertical line). It looks like the distribution of smallest values from the posterior predictions are not too far off the true smallest value of $y$.
+```{r}
+y_rep <- posterior_predict(fit1)
+test <- function(y) {
+  min(y)
+}
+
+test_rep <- apply(y_rep, 1, test)
+hist(test_rep, xlim = range(test(pyth_train$y), test_rep))
+lines(rep(test(pyth_train$y), 2), c(0,1000), type = 'l')
+#plot(rep(test(pyth_train$y), 2), c(0,40), type = 'l')
+```
+c) Make a residual plot for the model. Do the assumptions appear to be met?
+```{r}
+predicted = predict(fit1)
+resid <- pyth_train$y - predicted
+resid_standardized <- (resid - mean(resid))/sd(resid)
+plot(predicted, resid, xlab = 'predicted value', ylab = 'residual')
+abline(0,0)
+plot(predicted, resid_standardized, xlab = 'predicted value', ylab = 'standardized residual')
+abline(0,0)
+acf(resid_standardized)
+#plot(lm(y ~ x1 + x2, data = pyth_train),3)
+```
+It appears that the assumptions of independence and equal variance (homoscedasticity) could hold. However, if we look at the normality below...
+
+```{r}
+qqnorm(resid)
+qqline(resid)
+```
+
+```{r}
+plot(density(resid), main = 'Residual density plot')
+```
+It doesn't appear to be normally distributed especially around the tails of the distribution.
+
+d) Make predictions for the remaining 20 data points in the file. How confident do you feel
+about these predictions?
+
+```{r}
+# extracting the last 20 data points
+new <- pyth[41:60,2:3]
+new
+```
+
+Generating the posterior predictive distributions
+```{r}
+y_pop <- posterior_predict(fit1, newdata = new)
+dim(y_pop)
+```
+We can summary the predictions for the 20 data points
+```{r}
+y_pop %>% as_tibble() %>% as.matrix() %>% summary()
+```
+Lastly, we can visualize the posterior predictive distributions using the function 'mcmc_intervals'
+```{r}
+mcmc_intervals(y_pop, prob = 0.5, prob_outer = 0.8)
+```
+# 11.9
+Use LOO to compare different models fit to the beauty and
+teaching evaluations example from Exercise 10.6.
+Fit two different models I have chosen to compare the two following models:
+
+$$
+eval = \beta_0 + \beta_1 \cdot beauty + \beta_2 \cdot female \\
+eval = \beta_0 + \beta_1 \cdot beauty
+$$
+but feel free to choose models of your own choice
+
+a) Discuss the LOO results for the different models and what this implies, or should imply, for model choice in this example. Hint: look at the looic using the loo() function.
+
+Solution:
+```{r}
+beauty
+```
+
+
+```{r}
+fit2 <- stan_glm(eval ~ beauty + female, data = beauty, refresh = 0)
+fit3 <- stan_glm(eval ~ beauty, data = beauty, refresh = 0)
+```
+
+looic works similarly to aic as it is an information criteria where the number in itself is not interpretable. It is only meaningful in relation to others and generally lower values of information criteria indicate a better model fit. looic is defined as:
+$$
+\text{looic} = -2 \cdot \text{elpd_loo}
+$$
+where elpd_loo is the expected log pointwise predictive density for a new dataset calculated using leave-one-out cross-validation.
+
+```{r}
+(loo2 <- loo(fit2))
+(loo3 <- loo(fit3))
+```
+
+This implies that having both the variables beauty and female as predictors is is better than only having beauty.
+
+b) Compare predictive errors pointwise. Are there some data points that are having high predictive errors for both fitted models.
+
+Solution:
+You can extract the pointwise predictive error from the loo output.
+The predictive error are then sorted in decreasing order with the indices returned.
+Finally, the 10 data points with the highest predictive error are extracted.
+```{r}
+sort(loo2$pointwise[,4],index.return=TRUE, decreasing=TRUE)$ix[1:10]
+```
+```{r}
+sort(loo3$pointwise[,3],index.return=TRUE, decreasing=TRUE)$ix[1:10]
+```
+It looks like is it some of the same points the two models have trouble predicting.
+
+# 11.3
+Consider the following procedure:
+
+Set n = 100 and draw n continuous values x_i uniformly distributed between 0 and 10. Then
+simulate data from the model $y_i = a + b \cdot x_i + error_i$, for $i = 1, . . . , n$, with $a = 2$, $b = 3$, and independent errors from a normal distribution.
+```{r}
+n <- 100  # Sample size
+x <- runif(n, min = 0, max = 10)  # Generate n uniformly distributed values between 0 and 10 for x
+error <- rnorm(n, mean = 0, sd = 1)  # Generate n independent standard normal errors
+y <- 2 + 3*x + error  # Simulate y values from the model
+data = data.frame(y = y, x = x)
+```
+
+Regress $y$ on $x$. Look at the median and mad sd of b. Check to see if the interval formed by
+the median ± 2 mad sd includes the true value, b = 3.
+```{r}
+(fit4 <- stan_glm(y ~ x, data = data, refresh = 0))  # Fit a linear regression model of y on x
+```
+
+```{r}
+median <- fit4$coefficients["x"]  # Extract the median of the coefficient for x (b)
+mad_sd <- fit4$ses["x"]  # Extract the MAD-SD of the coefficient for x (b)
+
+# Calculate the interval formed by the median ± 2 MAD-SDs
+interval <- c(median - 2 * mad_sd, median + 2 * mad_sd)
+
+# Check if the interval includes the true value of b (b = 3)
+if (interval[1] <= 3 && interval[2] >= 3) {
+  print("The interval includes the true value of b = 3.")
+} else {
+  print("The interval does not include the true value of b = 3.")
+}
+```
+Repeat the above two steps 1000 times. 
+```{r}
+# Initialize empty vectors to store coefficient estimates and interval endpoints
+median <- rep(NA, 1000)  # Vector to store the estimated coefficient for x (b)
+mad_sd <- rep(NA, 1000) # Vector to store the estimated coefficient for x (b)
+interval_lower <- rep(NA, 1000)  # Vector to store the lower endpoint of the interval
+interval_upper <- rep(NA, 1000)  # Vector to store the upper endpoint of the interval
+
+# Initialize count of how many times 3 is included in the interval
+count <- 0
+
+# Loop over the simulations
+for (i in 1:1000) {
+  
+  # Simulate data
+  n <- 100
+  x <- runif(n, 0, 10)
+  error <- rnorm(n, 0, 1)
+  y <- 2 + 3*x + error
+  
+  # Fit linear regression model
+  fit <- stan_glm(y ~ x, data = data, refresh = 0)
+  
+  # Calculate coefficient estimate and interval endpoints
+  median[i] <- fit$coefficients["x"]
+  mad_sd[i] <- fit$ses["x"]
+  interval_lower[i] <- median[i] - 2*mad_sd[i]
+  interval_upper[i] <- median[i] + 2*mad_sd[i]
+  
+  # Increment count if 3 is included in the interval
+  if (interval_lower[i] <= 3 & interval_upper[i] >= 3) {
+    count <- count + 1
+  }
+}
+
+# Check if the true value of b = 3 falls within the intervals
+if (count > 0) {
+  cat("The true value of b = 3 is included in", count, "of the intervals.")
+} else {
+  print("The true value of b = 3 is not included in any of the intervals.")
+}
+
+
+```
+a) True or False: The interval should contain the true value approximately 950 times. Explain your answer.
+
+Solution: False, because these are posterior intervals and we’re regularizing our inference with informative priors.
+
+b) True or False:  The interval should contain the true value approximately 950 times IF the error follows a bimodal distribution. Explain your answer.
+
+Solution: False, if the error follows a bimodal distribution, then the assumptions for the linear model no longer hold.
+
+
+
+
