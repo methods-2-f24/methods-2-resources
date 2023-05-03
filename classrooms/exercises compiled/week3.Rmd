@@ -1,0 +1,99 @@
+---
+title: "Week 3 solution"
+author: "Kathrine Schultz-Nielsen"
+date: "22/2/2023"
+output:
+---
+
+```{r}
+# Loading dependencies
+pacman::p_load(tidyverse, ggpubr)
+```
+
+# Chapter 4
+
+## Warm-up 1: Consider the study of ovulation and political attitudes on pp. 62-63. Why is this study flawed. Discuss with your neighbor :)
+
+
+## Warm-up 2: What are the authors in ROS 3 suggestions to avoid over-interpretation of noise?
+
+
+## Optional: If you want more exercises from chapter 4 try 4.1 and 4.2 if you didn't complete them last week. In 4.2 use the proportions given in the example in section "Standard error for a comparison" on pp. 52-53.
+
+# Chapter 5
+
+Before we dig into the exercises from ROS complete the following two small exercises about loops as they will be essential to simulation.
+
+## Exercise 1 Practising loops: What is the difference between a for- and a while loop? Explain in your own words. When would you use for loops and when would you use while loops?
+
+## Exercise 2 Practising loops: Create and run both a simple for and a while loop
+
+```{r}
+
+```
+
+## 5.1
+a)
+```{r}
+
+```
+
+b) 
+```{r}
+
+```
+c) 
+```{r}
+
+```
+
+## 5.3
+a) 
+```{r}
+
+```
+b) 
+```{r}
+
+```
+# 5.4
+Recall the Central limit theorem on the bottom of page 51.
+```{r}
+
+```
+
+# 5.5 
+*Hint 1 
+```{r}
+
+```
+
+
+# 5.8
+a) 
+```{r}
+
+```
+
+b)
+*Hint 2
+
+```{r}
+
+```
+
+# 5.9
+
+```{r}
+
+```
+
+# Hints
+### Hint 1 
+Utilize that 
+$$
+\rho_{X, Y}=\operatorname{corr}(X, Y)=\frac{\operatorname{cov}(X, Y)}{\sigma_X \sigma_Y}
+$$
+### Hint 2
+If you are stuck figuring out how to find confidence intervals in R have a look here:
+https://www.geeksforgeeks.org/how-to-find-confidence-intervals-in-r/

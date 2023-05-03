@@ -1,0 +1,68 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Exercises from Chapter 3
+## Warm-up: Practicing vector and matrix notation
+Consider the following predictions
+$$
+\begin{aligned}
+& \hat{y}_1=47=50+3.0 *(-1) \\
+& \hat{y}_2=-50=50*(-1)+3.0 * 0 \\
+& \hat{y}_3=109=50*2+3.0 * 3
+\end{aligned}
+$$
+Try to write the prediction in vector notation. If you further want to challenge yourself try Matrix notation as well. (if you are stuck have a look at pages 36-37 in ROS). It might be helpful to do this exercise by hand.
+
+## 3.1
+
+```{r}
+
+```
+
+
+## 3.3
+
+```{r}
+
+```
+
+
+## 3.4
+
+```{r}
+
+```
+
+
+## 3.5
+
+```{r}
+
+```
+
+
+## 3.8
+
+```{r}
+
+```
+
+
+# Exercises from Chapter 4
+These exercises are optional if you need some extra challenge. It is a sneakpeak of the chapter for next weeks lecture.
+
+## 4.1 
+
+```{r}
+
+```
+
+
+## 4.2
+
+```{r}
+
+```
+

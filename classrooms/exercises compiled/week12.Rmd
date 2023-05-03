@@ -1,0 +1,100 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+# importing dependencies
+library(tidyverse)
+library(rstanarm)
+library(bayesplot)
+set.seed(0)
+```
+
+# 11.5
+Residuals and predictions: The folder Pyth contains outcome $y$ and predictors $x_1$, $x_2$ for 40
+data points, with a further 20 points with the predictors but no observed outcome. Save the file
+to your working directory, then read it into R using read.table()
+
+Remember that you can load the data sets from ROS directly from their github
+```{r}
+remotes::install_github("avehtari/ROS-Examples",subdir = "rpackage")
+library(rosdata)
+pyth
+
+```
+
+a) Use R to fit a regression model predicting $y$ from $x_1$ and $x_2$ using the first 40 data points. Use R to summarize inferences and checks the fit of your model. 
+
+Use the function pp_check() to summarize your inference and check your model fit. 
+
+Take a moment to understand what the pp_check() plot is showing you.
+
+b) Display the estimated model graphically as in figure 11.2.
+
+There is code on page 164-165 in ROS that can help you get started
+
+c) Make residual plots for the model. Do the assumptions of the linear model regarding residuals appear to be met?
+
+d) Make predictions for the remaining 20 data points in the file. How confident do you feel
+about these predictions?
+
+*hint* use the functions posterior_predict() to create predictive distributions. Use mcmc_intervals() to visualize these.
+
+# 11.9
+Use LOO to compare different models fit to the beauty and
+teaching evaluations example from Exercise 10.6.
+Fit two different models. I have chosen to compare the two following models
+$$
+eval = \beta_0 + \beta_1 \cdot beauty + \beta_1 \cdot female \\
+eval = \beta_0 + \beta_2 \cdot beauty
+$$
+but feel free to choose models of your own choice
+
+a) Discuss the LOO results for the different models and what this implies, or should imply, for model choice in this example. Hint: look at the looic using the loo() function.
+
+b) Compare predictive errors pointwise. Are there some data points that are having high predictive errors for both fitted models.
+
+*hint* If you have defined the output of the loo() function as a variable called loo2, then you can extract the pointwise looic using loo2$pointwise[,4]. Can you find a way to sort these pointwise looic values in decreasing order and extract their indices?
+
+# 11.3
+Consider the following procedure:
+
+Set n = 100 and draw n continuous values x_i uniformly distributed between 0 and 10. Then
+simulate data from the model $y_i = a + b \cdot x_i + error_i$, for $i = 1, . . . , n$, with $a = 2$, $b = 3$, and independent errors from a normal distribution.
+
+```{r}
+# Your code goes here...
+```
+
+Regress $y$ on $x$. Look at the median and mad sd of b. Check to see if the interval formed by
+the median ± 2 mad sd includes the true value, b = 3.
+
+```{r}
+# Your code goes here...
+```
+
+Repeat the above two steps 1000 times.
+
+```{r}
+# Your code goes here...
+```
+
+a) True or False: The interval should contain the true value approximately 950 times. Explain your answer.
+
+
+b) True or False:  The interval should contain the true value approximately 950 times IF the error follows a bimodal distribution. Explain your answer.
+
+
+
+
+
+
+
+
+
+
+
+
+
+

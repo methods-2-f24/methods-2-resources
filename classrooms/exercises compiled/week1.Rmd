@@ -1,0 +1,21 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Exercise 1.2
+
+```{r}
+# Your code goes here...
+```
+
+
+# Exercise 1.5
+
+# Exercise 2.3
+
+```{r}
+# Your code goes here..
+```
+
+# Exercise 2.7
